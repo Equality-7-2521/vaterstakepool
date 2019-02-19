@@ -6,32 +6,32 @@
 package main
 
 import (
-	"github.com/decred/dcrd/chaincfg"
-	"github.com/decred/dcrd/wire"
+	"github.com/vatercoin/vaterd/chaincfg"
+	"github.com/vatercoin/vaterd/wire"
 )
 
 // activeNetParams is a pointer to the parameters specific to the
-// currently active decred network.
+// currently active vatercoin network.
 var activeNetParams = &mainNetParams
 
 // params is used to group parameters for various networks such as the main
 // network and test networks.
 type params struct {
 	*chaincfg.Params
-	DcrdRPCServerPort   string
+	VaterdRPCServerPort   string
 	RPCServerPort       string
 	WalletRPCServerPort string
 }
 
 // mainNetParams contains parameters specific to the main network
 // (wire.MainNet).  NOTE: The RPC port is intentionally different than the
-// reference implementation because dcrd does not handle wallet requests.  The
+// reference implementation because vaterd does not handle wallet requests.  The
 // separate wallet process listens on the well-known port and forwards requests
-// it does not handle on to dcrd.  This approach allows the wallet process
+// it does not handle on to vaterd.  This approach allows the wallet process
 // to emulate the full reference implementation RPC API.
 var mainNetParams = params{
 	Params:              &chaincfg.MainNetParams,
-	DcrdRPCServerPort:   "9109",
+	VaterdRPCServerPort:   "9109",
 	RPCServerPort:       "9113",
 	WalletRPCServerPort: "9110",
 }
@@ -39,9 +39,9 @@ var mainNetParams = params{
 // testNet3Params contains parameters specific to the test network (version 0)
 // (wire.TestNet).  NOTE: The RPC port is intentionally different than the
 // reference implementation - see the mainNetParams comment for details.
-var testNet3Params = params{
-	Params:              &chaincfg.TestNet3Params,
-	DcrdRPCServerPort:   "19109",
+var testNetParams = params{
+	Params:              &chaincfg.TestNetParams,
+	VaterdRPCServerPort:   "19109",
 	RPCServerPort:       "19113",
 	WalletRPCServerPort: "19110",
 }
@@ -50,13 +50,13 @@ var testNet3Params = params{
 // (wire.SimNet).
 var simNetParams = params{
 	Params:              &chaincfg.SimNetParams,
-	DcrdRPCServerPort:   "19556",
+	VaterdRPCServerPort:   "19556",
 	RPCServerPort:       "19560",
 	WalletRPCServerPort: "19557",
 }
 
-// netName returns the name used when referring to a decred network.  At the
-// time of writing, dcrd currently places blocks for testnet version 0 in the
+// netName returns the name used when referring to a vatercoin network.  At the
+// time of writing, vaterd currently places blocks for testnet version 0 in the
 // data and log directory "testnet", which does not match the Name field of the
 // chaincfg parameters.  This function can be used to override this directory name
 // as "testnet" when the passed active network matches wire.TestNet.
@@ -66,7 +66,7 @@ var simNetParams = params{
 // removed and the network parameter's name used instead.
 func netName(chainParams *params) string {
 	switch chainParams.Net {
-	case wire.TestNet3:
+	case wire.TestNet:
 		return "testnet3"
 	default:
 		return chainParams.Name

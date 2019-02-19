@@ -9,8 +9,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/decred/dcrstakepool/backend/stakepoold/rpc/rpcserver"
-	"github.com/decred/dcrstakepool/backend/stakepoold/userdata"
+	"github.com/vatercoin/vaterstakepool/backend/stakepoold/rpc/rpcserver"
+	"github.com/vatercoin/vaterstakepool/backend/stakepoold/userdata"
 	"github.com/decred/slog"
 	"github.com/jrick/logrotate/rotator"
 )

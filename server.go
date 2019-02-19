@@ -15,10 +15,10 @@ import (
 
 	"github.com/gorilla/context"
 
-	"github.com/decred/dcrd/rpcclient"
-	"github.com/decred/dcrstakepool/controllers"
-	"github.com/decred/dcrstakepool/stakepooldclient"
-	"github.com/decred/dcrstakepool/system"
+	"github.com/vatercoin/vaterd/rpcclient"
+	"github.com/vatercoin/vaterstakepool/controllers"
+	"github.com/vatercoin/vaterstakepool/stakepooldclient"
+	"github.com/vatercoin/vaterstakepool/system"
 
 	"github.com/zenazn/goji/graceful"
 	"github.com/zenazn/goji/web"

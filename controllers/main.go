@@ -19,18 +19,18 @@ import (
 
 	"github.com/dajohi/goemail"
 	"github.com/dchest/captcha"
-	"github.com/decred/dcrd/chaincfg"
-	"github.com/decred/dcrd/chaincfg/chainhash"
-	"github.com/decred/dcrd/dcrjson"
-	"github.com/decred/dcrd/dcrutil"
-	"github.com/decred/dcrd/hdkeychain"
-	"github.com/decred/dcrstakepool/helpers"
-	"github.com/decred/dcrstakepool/internal/version"
-	"github.com/decred/dcrstakepool/models"
-	"github.com/decred/dcrstakepool/poolapi"
-	"github.com/decred/dcrstakepool/stakepooldclient"
-	"github.com/decred/dcrstakepool/system"
-	"github.com/decred/dcrwallet/wallet/udb"
+	"github.com/vatercoin/vaterd/chaincfg"
+	"github.com/vatercoin/vaterd/chaincfg/chainhash"
+	"github.com/vatercoin/vaterd/vaterjson"
+	"github.com/vatercoin/vaterd/vaterutil"
+	"github.com/vatercoin/vaterd/hdkeychain"
+	"github.com/vatercoin/vaterstakepool/helpers"
+	"github.com/vatercoin/vaterstakepool/internal/version"
+	"github.com/vatercoin/vaterstakepool/models"
+	"github.com/vatercoin/vaterstakepool/poolapi"
+	"github.com/vatercoin/vaterstakepool/stakepooldclient"
+	"github.com/vatercoin/vaterstakepool/system"
+	"github.com/vatercoin/vaterwallet/wallet/udb"
 	"github.com/go-gorp/gorp"
 	"github.com/zenazn/goji/web"
 
@@ -199,7 +199,7 @@ func NewMainController(params *chaincfg.Params, adminIPs []string,
 // getNetworkName will strip any suffix from a network name starting with
 // "testnet" (e.g. "testnet3"). This is primarily intended for the tickets page,
 // which generates block explorer links using a value set by the network string,
-// which is a problem since there is no testnet3.dcrdata.org host.
+// which is a problem since there is no testnet3.vaterdata.org host.
 func (controller *MainController) getNetworkName() string {
 	if strings.HasPrefix(controller.params.Name, "testnet") {
 		return "testnet"
@@ -273,12 +273,12 @@ func (controller *MainController) APIAddress(c web.C, r *http.Request) ([]string
 		return nil, codes.InvalidArgument, "address error", errors.New("address too long")
 	}
 
-	u, err := dcrutil.DecodeAddress(userPubKeyAddr)
+	u, err := vaterutil.DecodeAddress(userPubKeyAddr)
 	if err != nil {
 		return nil, codes.InvalidArgument, "address error", errors.New("couldn't decode address")
 	}
 
-	_, is := u.(*dcrutil.AddressSecpPubKey)
+	_, is := u.(*vaterutil.AddressSecpPubKey)
 	if !is {
 		return nil, codes.InvalidArgument, "address error", errors.New("incorrect address type")
 	}
@@ -303,7 +303,7 @@ func (controller *MainController) APIAddress(c web.C, r *http.Request) ([]string
 
 	poolPubKeyAddr := poolValidateAddress.PubKeyAddr
 
-	p, err := dcrutil.DecodeAddress(poolPubKeyAddr)
+	p, err := vaterutil.DecodeAddress(poolPubKeyAddr)
 	if err != nil {
 		controller.handlePotentialFatalError("DecodeAddress poolPubKeyAddr", err)
 		return nil, codes.Unavailable, "system error", errors.New("unable to process wallet commands")
@@ -312,7 +312,7 @@ func (controller *MainController) APIAddress(c web.C, r *http.Request) ([]string
 	if controller.RPCIsStopped() {
 		return nil, codes.Unavailable, "system error", errors.New("unable to process wallet commands")
 	}
-	createMultiSig, err := controller.rpcServers.CreateMultisig(1, []dcrutil.Address{p, u})
+	createMultiSig, err := controller.rpcServers.CreateMultisig(1, []vaterutil.Address{p, u})
 	if err != nil {
 		controller.handlePotentialFatalError("CreateMultisig", err)
 		return nil, codes.Unavailable, "system error", errors.New("unable to process wallet commands")
@@ -617,7 +617,7 @@ func (controller *MainController) StakepooldUpdateAll(dbMap *gorp.DbMap, updateK
 
 // FeeAddressForUserID generates a unique payout address per used ID for
 // fees for an individual pool user.
-func (controller *MainController) FeeAddressForUserID(uid int) (dcrutil.Address,
+func (controller *MainController) FeeAddressForUserID(uid int) (vaterutil.Address,
 	error) {
 	if uid+1 > MaxUsers {
 		return nil, fmt.Errorf("bad uid index %v", uid)
@@ -647,7 +647,7 @@ func (controller *MainController) FeeAddressForUserID(uid int) (dcrutil.Address,
 
 // TicketAddressForUserID generates a unique ticket address per used ID for
 // generating the 1-of-2 multisig.
-func (controller *MainController) TicketAddressForUserID(uid int) (dcrutil.Address,
+func (controller *MainController) TicketAddressForUserID(uid int) (vaterutil.Address,
 	error) {
 	if uid+1 > MaxUsers {
 		return nil, fmt.Errorf("bad uid index %v", uid)
@@ -777,7 +777,7 @@ func (controller *MainController) RPCIsStopped() bool {
 }
 
 // WalletStatus returns current WalletInfo from all rpcServers.
-func (controller *MainController) WalletStatus() ([]*dcrjson.WalletInfoResult, error) {
+func (controller *MainController) WalletStatus() ([]*vaterjson.WalletInfoResult, error) {
 	return controller.rpcServers.WalletStatus()
 }
 
@@ -809,7 +809,7 @@ func (controller *MainController) Address(c web.C, r *http.Request) (string, int
 	c.Env["Flash"] = session.Flashes("address")
 	widgets := controller.Parse(t, "address", c.Env)
 
-	c.Env["Title"] = "Decred Stake Pool - Address"
+	c.Env["Title"] = "Vatercoin Stake Pool - Address"
 	c.Env["Content"] = template.HTML(widgets)
 
 	return controller.Parse(t, "main", c.Env), http.StatusOK
@@ -847,14 +847,14 @@ func (controller *MainController) AddressPost(c web.C, r *http.Request) (string,
 		return controller.Address(c, r)
 	}
 
-	// Get dcrutil.Address for user from pubkey address string
-	u, err := dcrutil.DecodeAddress(userPubKeyAddr)
+	// Get vaterutil.Address for user from pubkey address string
+	u, err := vaterutil.DecodeAddress(userPubKeyAddr)
 	if err != nil {
 		session.AddFlash("Couldn't decode address", "address")
 		return controller.Address(c, r)
 	}
 
-	_, is := u.(*dcrutil.AddressSecpPubKey)
+	_, is := u.(*vaterutil.AddressSecpPubKey)
 	if !is {
 		session.AddFlash("Incorrect address type", "address")
 		return controller.Address(c, r)
@@ -886,7 +886,7 @@ func (controller *MainController) AddressPost(c web.C, r *http.Request) (string,
 	poolPubKeyAddr := poolValidateAddress.PubKeyAddr
 
 	// Get back Address from pool's new pubkey address
-	p, err := dcrutil.DecodeAddress(poolPubKeyAddr)
+	p, err := vaterutil.DecodeAddress(poolPubKeyAddr)
 	if err != nil {
 		controller.handlePotentialFatalError("DecodeAddress poolPubKeyAddr", err)
 		return "/error", http.StatusSeeOther
@@ -896,7 +896,7 @@ func (controller *MainController) AddressPost(c web.C, r *http.Request) (string,
 	if controller.RPCIsStopped() {
 		return "/error", http.StatusSeeOther
 	}
-	createMultiSig, err := controller.rpcServers.CreateMultisig(1, []dcrutil.Address{p, u})
+	createMultiSig, err := controller.rpcServers.CreateMultisig(1, []vaterutil.Address{p, u})
 	if err != nil {
 		controller.handlePotentialFatalError("CreateMultisig", err)
 		return "/error", http.StatusSeeOther
@@ -1041,7 +1041,7 @@ func (controller *MainController) AdminStatus(c web.C, r *http.Request) (string,
 	t := controller.GetTemplate(c)
 	c.Env["Admin"] = isAdmin
 	c.Env["IsAdminStatus"] = true
-	c.Env["Title"] = "Decred Voting Service - Status (Admin)"
+	c.Env["Title"] = "Vatercoin Voting Service - Status (Admin)"
 
 	// Set info to be used by admins on /status page.
 	c.Env["StakepooldInfo"] = stakepooldPageInfo
@@ -1090,7 +1090,7 @@ func (controller *MainController) AdminTickets(c web.C, r *http.Request) (string
 	c.Env["IgnoredLowFeeTickets"], _ = controller.StakepooldGetIgnoredLowFeeTickets()
 	widgets := controller.Parse(t, "admin/tickets", c.Env)
 
-	c.Env["Title"] = "Decred Voting Service - Tickets (Admin)"
+	c.Env["Title"] = "Vatercoin Voting Service - Tickets (Admin)"
 	c.Env["Content"] = template.HTML(widgets)
 
 	return controller.Parse(t, "main", c.Env), http.StatusOK
@@ -1226,7 +1226,7 @@ func (controller *MainController) EmailUpdate(c web.C, r *http.Request) (string,
 	dbMap := controller.GetDbMap(c)
 
 	render := func() string {
-		c.Env["Title"] = "Decred Voting Service - Email Update"
+		c.Env["Title"] = "Vatercoin Voting Service - Email Update"
 		c.Env["FlashError"] = session.Flashes("emailupdateError")
 		c.Env["FlashSuccess"] = session.Flashes("emailupdateSuccess")
 		c.Env["IsEmailUpdate"] = true
@@ -1297,7 +1297,7 @@ func (controller *MainController) EmailVerify(c web.C, r *http.Request) (string,
 	dbMap := controller.GetDbMap(c)
 
 	render := func() string {
-		c.Env["Title"] = "Decred Voting Service - Email Verification"
+		c.Env["Title"] = "Vatercoin Voting Service - Email Verification"
 		c.Env["FlashError"] = session.Flashes("emailverifyError")
 		c.Env["FlashSuccess"] = session.Flashes("emailverifySuccess")
 		c.Env["IsEmailVerify"] = true
@@ -1356,7 +1356,7 @@ func (controller *MainController) Error(c web.C, r *http.Request) (string, int) 
 
 	c.Env["Admin"], _ = controller.isAdmin(c, r)
 	c.Env["IsError"] = true
-	c.Env["Title"] = "Decred Stake Pool - Error"
+	c.Env["Title"] = "Vatercoin Stake Pool - Error"
 	c.Env["RPCStatus"] = rpcstatus
 	c.Env["RateLimited"] = r.URL.Query().Get("rl")
 	c.Env["Referer"] = r.URL.Query().Get("r")
@@ -1385,7 +1385,7 @@ func (controller *MainController) Index(c web.C, r *http.Request) (string, int) 
 
 	c.Env["Admin"], _ = controller.isAdmin(c, r)
 	c.Env["IsIndex"] = true
-	c.Env["Title"] = "Decred Voting Service - Welcome"
+	c.Env["Title"] = "Vatercoin Voting Service - Welcome"
 	c.Env["Content"] = template.HTML(widgets)
 
 	return helpers.Parse(t, "main", c.Env), http.StatusOK
@@ -1394,7 +1394,7 @@ func (controller *MainController) Index(c web.C, r *http.Request) (string, int) 
 // PasswordReset renders the password reset page. This shows the form where the
 // user enters their email address.
 func (controller *MainController) PasswordReset(c web.C, r *http.Request) (string, int) {
-	c.Env["Title"] = "Decred Voting Service - Password Reset"
+	c.Env["Title"] = "Vatercoin Voting Service - Password Reset"
 	session := controller.GetSession(c)
 	c.Env["FlashError"] = append(session.Flashes("passwordresetError"), session.Flashes("captchaFailed")...)
 	c.Env["FlashSuccess"] = session.Flashes("passwordresetSuccess")
@@ -1482,7 +1482,7 @@ func (controller *MainController) PasswordUpdate(c web.C, r *http.Request) (stri
 	session := controller.GetSession(c)
 
 	render := func() string {
-		c.Env["Title"] = "Decred Voting Service - Password Update"
+		c.Env["Title"] = "Vatercoin Voting Service - Password Update"
 		c.Env["FlashError"] = session.Flashes("passwordupdateError")
 		c.Env["FlashSuccess"] = session.Flashes("passwordupdateSuccess")
 		c.Env["IsPasswordUpdate"] = true
@@ -1596,7 +1596,7 @@ func (controller *MainController) Settings(c web.C, r *http.Request) (string, in
 	t := controller.GetTemplate(c)
 	widgets := controller.Parse(t, "settings", c.Env)
 
-	c.Env["Title"] = "Decred Voting Service - Settings"
+	c.Env["Title"] = "Vatercoin Voting Service - Settings"
 	c.Env["Content"] = template.HTML(widgets)
 	return controller.Parse(t, "main", c.Env), http.StatusOK
 }
@@ -1737,7 +1737,7 @@ func (controller *MainController) SignIn(c web.C, r *http.Request) (string, int)
 	c.Env["Flash"] = session.Flashes("auth")
 	widgets := controller.Parse(t, "auth/signin", c.Env)
 
-	c.Env["Title"] = "Decred Stake Pool - Sign In"
+	c.Env["Title"] = "Vatercoin Stake Pool - Sign In"
 	c.Env["Content"] = template.HTML(widgets)
 
 	return controller.Parse(t, "main", c.Env), http.StatusOK
@@ -1797,7 +1797,7 @@ func (controller *MainController) SignUp(c web.C, r *http.Request) (string, int)
 	t := controller.GetTemplate(c)
 	widgets := controller.Parse(t, "auth/signup", c.Env)
 
-	c.Env["Title"] = "Decred Stake Pool - Sign Up"
+	c.Env["Title"] = "Vatercoin Stake Pool - Sign Up"
 	c.Env["Content"] = template.HTML(widgets)
 	return controller.Parse(t, "main", c.Env), http.StatusOK
 }
@@ -1884,7 +1884,7 @@ func (controller *MainController) Stats(c web.C, r *http.Request) (string, int) 
 	t := controller.GetTemplate(c)
 	c.Env["Admin"], _ = controller.isAdmin(c, r)
 	c.Env["IsStats"] = true
-	c.Env["Title"] = "Decred Stake Pool - Stats"
+	c.Env["Title"] = "Vatercoin Stake Pool - Stats"
 
 	dbMap := controller.GetDbMap(c)
 
@@ -1986,7 +1986,7 @@ func (controller *MainController) Tickets(c web.C, r *http.Request) (string, int
 	c.Env["IsTickets"] = true
 	c.Env["Network"] = controller.getNetworkName()
 	c.Env["PoolFees"] = controller.poolFees
-	c.Env["Title"] = "Decred Stake Pool - Tickets"
+	c.Env["Title"] = "Vatercoin Stake Pool - Tickets"
 
 	dbMap := controller.GetDbMap(c)
 	user, _ := models.GetUserById(dbMap, session.Values["UserId"].(int64))
@@ -2001,7 +2001,7 @@ func (controller *MainController) Tickets(c web.C, r *http.Request) (string, int
 	}
 
 	// Get P2SH Address
-	multisig, err := dcrutil.DecodeAddress(user.MultiSigAddress)
+	multisig, err := vaterutil.DecodeAddress(user.MultiSigAddress)
 	if err != nil {
 		log.Warnf("Invalid address %v in database: %v", user.MultiSigAddress, err)
 		return "/error", http.StatusSeeOther
@@ -2129,7 +2129,7 @@ func (controller *MainController) Voting(c web.C, r *http.Request) (string, int)
 	c.Env["VoteVersion"] = controller.voteVersion
 
 	widgets := controller.Parse(t, "voting", c.Env)
-	c.Env["Title"] = "Decred Voting Service - Voting"
+	c.Env["Title"] = "Vatercoin Voting Service - Voting"
 	c.Env["Content"] = template.HTML(widgets)
 
 	return controller.Parse(t, "main", c.Env), http.StatusOK

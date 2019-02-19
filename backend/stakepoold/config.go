@@ -15,8 +15,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/decred/dcrd/dcrutil"
-	"github.com/decred/dcrstakepool/internal/version"
+	"github.com/vatercoin/vaterd/vaterutil"
+	"github.com/vatercoin/vaterstakepool/internal/version"
 	flags "github.com/jessevdk/go-flags"
 )
 
@@ -30,7 +30,7 @@ const (
 )
 
 var (
-	defaultHomeDir     = dcrutil.AppDataDir("stakepoold", false)
+	defaultHomeDir     = vaterutil.AppDataDir("stakepoold", false)
 	defaultConfigFile  = filepath.Join(defaultHomeDir, defaultConfigFilename)
 	defaultDataDir     = filepath.Join(defaultHomeDir, defaultDataDirname)
 	defaultRPCKeyFile  = filepath.Join(defaultHomeDir, "rpc.key")
@@ -46,7 +46,7 @@ var (
 // to parse and execute service commands specified via the -s flag.
 var runServiceCommand func(string) error
 
-// config defines the configuration options for dcrd.
+// config defines the configuration options for vaterd.
 //
 // See loadConfig for details on the configuration load process.
 type config struct {
@@ -68,10 +68,10 @@ type config struct {
 	DBPassword       string   `long:"dbpassword" description:"Password for database connection"`
 	DBPort           string   `long:"dbport" description:"Port for database connection"`
 	DBName           string   `long:"dbname" description:"Name of database"`
-	DcrdHost         string   `long:"dcrdhost" description:"Hostname/IP for dcrd server"`
-	DcrdUser         string   `long:"dcrduser" description:"Username for dcrd server"`
-	DcrdPassword     string   `long:"dcrdpassword" description:"Password for dcrd server"`
-	DcrdCert         string   `long:"dcrdcert" description:"Certificate path for dcrd server"`
+	VaterdHost         string   `long:"vaterdhost" description:"Hostname/IP for vaterd server"`
+	VaterdUser         string   `long:"vaterduser" description:"Username for vaterd server"`
+	VaterdPassword     string   `long:"vaterdpassword" description:"Password for vaterd server"`
+	VaterdCert         string   `long:"vaterdcert" description:"Certificate path for vaterd server"`
 	WalletHost       string   `long:"wallethost" description:"Hostname for wallet server"`
 	WalletUser       string   `long:"walletuser" description:"Username for wallet server"`
 	WalletPassword   string   `long:"walletpassword" description:"Password for wallet server"`
@@ -486,29 +486,29 @@ func loadConfig() (*config, []string, error) {
 		return nil, nil, err
 	}
 
-	if len(cfg.DcrdHost) == 0 {
-		str := "%s: dcrdhost is not set in config"
+	if len(cfg.VaterdHost) == 0 {
+		str := "%s: vaterdhost is not set in config"
 		err := fmt.Errorf(str, funcName)
 		fmt.Fprintln(os.Stderr, err)
 		return nil, nil, err
 	}
 
-	if len(cfg.DcrdCert) == 0 {
-		str := "%s: dcrdcert is not set in config"
+	if len(cfg.VaterdCert) == 0 {
+		str := "%s: vaterdcert is not set in config"
 		err := fmt.Errorf(str, funcName)
 		fmt.Fprintln(os.Stderr, err)
 		return nil, nil, err
 	}
 
-	if len(cfg.DcrdUser) == 0 {
-		str := "%s: dcrduser is not set in config"
+	if len(cfg.VaterdUser) == 0 {
+		str := "%s: vaterduser is not set in config"
 		err := fmt.Errorf(str, funcName)
 		fmt.Fprintln(os.Stderr, err)
 		return nil, nil, err
 	}
 
-	if len(cfg.DcrdPassword) == 0 {
-		str := "%s: dcrdpassword is not set in config"
+	if len(cfg.VaterdPassword) == 0 {
+		str := "%s: vaterdpassword is not set in config"
 		err := fmt.Errorf(str, funcName)
 		fmt.Fprintln(os.Stderr, err)
 		return nil, nil, err
@@ -543,20 +543,20 @@ func loadConfig() (*config, []string, error) {
 	}
 
 	// Add default wallet port for the active network if there's no port specified
-	cfg.DcrdHost = normalizeAddress(cfg.DcrdHost, activeNetParams.DcrdRPCServerPort)
+	cfg.VaterdHost = normalizeAddress(cfg.VaterdHost, activeNetParams.VaterdRPCServerPort)
 	cfg.WalletHost = normalizeAddress(cfg.WalletHost, activeNetParams.WalletRPCServerPort)
 
-	if !fileExists(cfg.DcrdCert) {
-		path := filepath.Join(cfg.HomeDir, cfg.DcrdCert)
+	if !fileExists(cfg.VaterdCert) {
+		path := filepath.Join(cfg.HomeDir, cfg.VaterdCert)
 		if !fileExists(path) {
-			str := "%s: dcrdcert " + cfg.DcrdCert + " and " +
+			str := "%s: vaterdcert " + cfg.VaterdCert + " and " +
 				path + " don't exist"
 			err := fmt.Errorf(str, funcName)
 			fmt.Fprintln(os.Stderr, err)
 			return nil, nil, err
 		}
 
-		cfg.DcrdCert = path
+		cfg.VaterdCert = path
 	}
 
 	if !fileExists(cfg.WalletCert) {

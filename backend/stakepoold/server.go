@@ -19,18 +19,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/decred/dcrd/blockchain/stake"
-	"github.com/decred/dcrd/chaincfg"
-	"github.com/decred/dcrd/chaincfg/chainhash"
-	"github.com/decred/dcrd/dcrjson"
-	"github.com/decred/dcrd/dcrutil"
-	"github.com/decred/dcrd/hdkeychain"
-	"github.com/decred/dcrd/rpcclient"
-	"github.com/decred/dcrd/wire"
-	"github.com/decred/dcrstakepool/backend/stakepoold/rpc/rpcserver"
-	"github.com/decred/dcrstakepool/backend/stakepoold/userdata"
-	"github.com/decred/dcrwallet/wallet/txrules"
-	"github.com/decred/dcrwallet/wallet/udb"
+	"github.com/vatercoin/vaterd/blockchain/stake"
+	"github.com/vatercoin/vaterd/chaincfg"
+	"github.com/vatercoin/vaterd/chaincfg/chainhash"
+	"github.com/vatercoin/vaterd/vaterjson"
+	"github.com/vatercoin/vaterd/vaterutil"
+	"github.com/vatercoin/vaterd/hdkeychain"
+	"github.com/vatercoin/vaterd/rpcclient"
+	"github.com/vatercoin/vaterd/wire"
+	"github.com/vatercoin/vaterstakepool/backend/stakepoold/rpc/rpcserver"
+	"github.com/vatercoin/vaterstakepool/backend/stakepoold/userdata"
+	"github.com/vatercoin/vaterwallet/wallet/txrules"
+	"github.com/vatercoin/vaterwallet/wallet/udb"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -161,8 +161,8 @@ func calculateFeeAddresses(xpubStr string, params *chaincfg.Params) (map[string]
 	return addrMap, nil
 }
 
-func deriveChildAddresses(key *hdkeychain.ExtendedKey, startIndex, count uint32, params *chaincfg.Params) ([]dcrutil.Address, error) {
-	addresses := make([]dcrutil.Address, 0, count)
+func deriveChildAddresses(key *hdkeychain.ExtendedKey, startIndex, count uint32, params *chaincfg.Params) ([]vaterutil.Address, error) {
+	addresses := make([]vaterutil.Address, 0, count)
 	for i := uint32(0); i < count; {
 		child, err := key.Child(startIndex + i)
 		if err == hdkeychain.ErrInvalidChild {
@@ -199,7 +199,7 @@ func evaluateStakePoolTicket(ctx *appContext, tx *wire.MsgTx, blockHeight int32)
 	}
 
 	// Extract the fee from the ticket.
-	in := dcrutil.Amount(0)
+	in := vaterutil.Amount(0)
 	for i := range tx.TxOut {
 		if i%2 != 0 {
 			commitAmt, err := stake.AmountFromSStxPkScrCommitment(
@@ -211,9 +211,9 @@ func evaluateStakePoolTicket(ctx *appContext, tx *wire.MsgTx, blockHeight int32)
 			in += commitAmt
 		}
 	}
-	out := dcrutil.Amount(0)
+	out := vaterutil.Amount(0)
 	for i := range tx.TxOut {
-		out += dcrutil.Amount(tx.TxOut[i].Value)
+		out += vaterutil.Amount(tx.TxOut[i].Value)
 	}
 	fees := in - out
 
@@ -228,7 +228,7 @@ func evaluateStakePoolTicket(ctx *appContext, tx *wire.MsgTx, blockHeight int32)
 
 		// Calculate the fee required based on the current
 		// height and the required amount from the pool.
-		feeNeeded := txrules.StakePoolTicketFee(dcrutil.Amount(
+		feeNeeded := txrules.StakePoolTicketFee(vaterutil.Amount(
 			tx.TxOut[0].Value), fees, blockHeight, ctx.poolFees,
 			ctx.params)
 		if commitAmt < feeNeeded {
@@ -307,10 +307,10 @@ func runMain() error {
 	var walletVer semver
 	walletConn, walletVer, err := connectWalletRPC(cfg)
 	if err != nil || walletConn == nil {
-		log.Infof("Connection to dcrwallet failed: %v", err)
+		log.Infof("Connection to vaterwallet failed: %v", err)
 		return err
 	}
-	log.Infof("Connected to dcrwallet (JSON-RPC API v%s)",
+	log.Infof("Connected to vaterwallet (JSON-RPC API v%s)",
 		walletVer.String())
 	walletInfoRes, err := walletConn.WalletInfo()
 	if err != nil || walletInfoRes == nil {
@@ -370,7 +370,7 @@ func runMain() error {
 	// Daemon client connection
 	nodeConn, nodeVer, err := connectNodeRPC(ctx, cfg)
 	if err != nil || nodeConn == nil {
-		log.Infof("Connection to dcrd failed: %v", err)
+		log.Infof("Connection to vaterd failed: %v", err)
 		return err
 	}
 	ctx.nodeConnection = nodeConn
@@ -378,10 +378,10 @@ func runMain() error {
 	// Display connected network
 	curnet, err := nodeConn.GetCurrentNet()
 	if err != nil {
-		log.Errorf("Unable to get current network from dcrd: %v", err)
+		log.Errorf("Unable to get current network from vaterd: %v", err)
 		return err
 	}
-	log.Infof("Connected to dcrd (JSON-RPC API v%s) on %v",
+	log.Infof("Connected to vaterd (JSON-RPC API v%s) on %v",
 		nodeVer.String(), curnet.String())
 
 	// prune save data
@@ -427,7 +427,7 @@ func runMain() error {
 	for {
 		curHash, curHeight, err := nodeConn.GetBestBlock()
 		if err != nil {
-			log.Errorf("unable to get bestblock from dcrd: %v", err)
+			log.Errorf("unable to get bestblock from vaterd: %v", err)
 			return err
 		}
 		log.Infof("current block height %v hash %v", curHeight, curHash)
@@ -440,7 +440,7 @@ func runMain() error {
 
 		afterHash, afterHeight, err := nodeConn.GetBestBlock()
 		if err != nil {
-			log.Errorf("unable to get bestblock from dcrd: %v", err)
+			log.Errorf("unable to get bestblock from vaterd: %v", err)
 			return err
 		}
 
@@ -473,7 +473,7 @@ func runMain() error {
 			"spent/missed tickets notifications: %s\n", err.Error())
 		return err
 	}
-	log.Info("subscribed to notifications from dcrd")
+	log.Info("subscribed to notifications from vaterd")
 
 	if !cfg.NoRPCListen {
 		if _, err = startGRPCServers(ctx.grpcCommandQueueChan); err != nil {
@@ -757,7 +757,7 @@ type ticketMetadata struct {
 	err          error                     // log errors along the way
 }
 
-// getticket pulls the transaction information for a ticket from dcrwallet. This is a go routine!
+// getticket pulls the transaction information for a ticket from vaterwallet. This is a go routine!
 func (ctx *appContext) getticket(wg *sync.WaitGroup, nt *ticketMetadata) {
 	start := time.Now()
 
@@ -879,7 +879,7 @@ func (ctx *appContext) vote(wg *sync.WaitGroup, blockHash *chainhash.Hash, block
 	}()
 
 	// Ask wallet to generate vote result.
-	var res *dcrjson.GenerateVoteResult
+	var res *vaterjson.GenerateVoteResult
 	res, w.err = ctx.walletConnection.GenerateVote(blockHash, blockHeight,
 		w.ticket, w.config.VoteBits, ctx.votingConfig.VoteBitsExtended)
 	if w.err != nil || res.Hex == "" {
@@ -1120,7 +1120,7 @@ func (ctx *appContext) processWinningTickets(wt WinningTicketsForBlock) {
 		} else if voteCfg.VoteBitsVersion != ctx.votingConfig.VoteVersion {
 			// If the user's voting config has a vote version that
 			// is different from our global vote version that we
-			// plucked from dcrwallet walletinfo then just use the
+			// plucked from vaterwallet walletinfo then just use the
 			// default votebits.
 			voteCfg.VoteBits = ctx.votingConfig.VoteBits
 			log.Infof("userid %v multisigaddress %v vote "+

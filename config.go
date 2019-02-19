@@ -15,19 +15,19 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/decred/dcrd/dcrutil"
-	"github.com/decred/dcrstakepool/internal/version"
+	"github.com/vatercoin/vaterd/vaterutil"
+	"github.com/vatercoin/vaterstakepool/internal/version"
 	flags "github.com/jessevdk/go-flags"
 )
 
 const (
 	defaultBaseURL        = "http://127.0.0.1:8000"
 	defaultClosePoolMsg   = "The voting service is temporarily closed to new signups."
-	defaultConfigFilename = "dcrstakepool.conf"
+	defaultConfigFilename = "vaterstakepool.conf"
 	defaultDataDirname    = "data"
 	defaultLogLevel       = "info"
 	defaultLogDirname     = "logs"
-	defaultLogFilename    = "dcrstakepool.log"
+	defaultLogFilename    = "vaterstakepool.log"
 	defaultCookieSecure   = false
 	defaultDBHost         = "localhost"
 	defaultDBName         = "stakepool"
@@ -36,7 +36,7 @@ const (
 	defaultListen         = ":8000"
 	defaultPoolEmail      = "admin@example.com"
 	defaultPoolFees       = 7.5
-	defaultPoolLink       = "https://forum.decred.org/threads/rfp-6-setup-and-operate-10-stake-pools.1361/"
+	defaultPoolLink       = "https://forum.vatercoin.org/threads/rfp-6-setup-and-operate-10-stake-pools.1361/"
 	defaultPublicPath     = "public"
 	defaultTemplatePath   = "views"
 	defaultSMTPHost       = ""
@@ -45,17 +45,17 @@ const (
 )
 
 var (
-	dcrstakepoolHomeDir = dcrutil.AppDataDir("dcrstakepool", false)
-	defaultConfigFile   = filepath.Join(dcrstakepoolHomeDir, defaultConfigFilename)
-	defaultDataDir      = filepath.Join(dcrstakepoolHomeDir, defaultDataDirname)
-	defaultLogDir       = filepath.Join(dcrstakepoolHomeDir, defaultLogDirname)
+	vaterstakepoolHomeDir = vaterutil.AppDataDir("vaterstakepool", false)
+	defaultConfigFile   = filepath.Join(vaterstakepoolHomeDir, defaultConfigFilename)
+	defaultDataDir      = filepath.Join(vaterstakepoolHomeDir, defaultDataDirname)
+	defaultLogDir       = filepath.Join(vaterstakepoolHomeDir, defaultLogDirname)
 )
 
 // runServiceCommand is only set to a real function on Windows.  It is used
 // to parse and execute service commands specified via the -s flag.
 var runServiceCommand func(string) error
 
-// config defines the configuration options for dcrd.
+// config defines the configuration options for vaterd.
 //
 // See loadConfig for details on the configuration load process.
 type config struct {
@@ -117,7 +117,7 @@ type serviceOptions struct {
 func cleanAndExpandPath(path string) string {
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
-		homeDir := filepath.Dir(dcrstakepoolHomeDir)
+		homeDir := filepath.Dir(vaterstakepoolHomeDir)
 		path = strings.Replace(path, "~", homeDir, 1)
 	}
 
@@ -368,7 +368,7 @@ func loadConfig() (*config, []string, error) {
 
 	// Create the home directory if it doesn't already exist.
 	funcName := "loadConfig"
-	err = os.MkdirAll(dcrstakepoolHomeDir, 0700)
+	err = os.MkdirAll(vaterstakepoolHomeDir, 0700)
 	if err != nil {
 		// Show a nicer error message if it's because a symlink is
 		// linked to a directory that does not exist (probably because
@@ -571,7 +571,7 @@ func loadConfig() (*config, []string, error) {
 
 	for idx := range cfg.WalletCerts {
 		if !fileExists(cfg.WalletCerts[idx]) {
-			path := filepath.Join(dcrstakepoolHomeDir, cfg.WalletCerts[idx])
+			path := filepath.Join(vaterstakepoolHomeDir, cfg.WalletCerts[idx])
 			if !fileExists(path) {
 				str := "%s: walletcert " + cfg.WalletCerts[idx] + " and " +
 					path + " don't exist"
@@ -624,7 +624,7 @@ func loadConfig() (*config, []string, error) {
 
 		for idx := range cfg.StakepooldCerts {
 			if !fileExists(cfg.StakepooldCerts[idx]) {
-				path := filepath.Join(dcrstakepoolHomeDir,
+				path := filepath.Join(vaterstakepoolHomeDir,
 					cfg.StakepooldCerts[idx])
 				if !fileExists(path) {
 					str := "%s: stakepooldcert " +

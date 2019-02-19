@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/decred/dcrd/chaincfg"
-	"github.com/decred/dcrd/chaincfg/chainhash"
-	"github.com/decred/dcrstakepool/backend/stakepoold/userdata"
+	"github.com/vatercoin/vaterd/chaincfg"
+	"github.com/vatercoin/vaterd/chaincfg/chainhash"
+	"github.com/vatercoin/vaterstakepool/backend/stakepoold/userdata"
 )
 
 func TestCalculateFeeAddresses(t *testing.T) {

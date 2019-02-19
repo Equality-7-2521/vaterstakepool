@@ -5875,7 +5875,7 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
     color: #444
 }
 
-.breadcrumb {
+.breavaterumb {
     padding: 8px 15px;
     margin-bottom: 20px;
     list-style: none;
@@ -5883,17 +5883,17 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
     border-radius: 4px
 }
 
-.breadcrumb>li {
+.breavaterumb>li {
     display: inline-block
 }
 
-.breadcrumb>li+li:before {
+.breavaterumb>li+li:before {
     content: "/ ";
     padding: 0 5px;
     color: #ccc
 }
 
-.breadcrumb>.active {
+.breavaterumb>.active {
     color: #777
 }
 

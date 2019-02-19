@@ -1,19 +1,19 @@
-module github.com/decred/dcrstakepool
+module github.com/vatercoin/vaterstakepool
 
 require (
 	github.com/apoydence/onpar v0.0.0-20181125144932-f2f06780798d // indirect
 	github.com/dajohi/goemail v0.0.0-20190207191308-61faa215f94d
 	github.com/dchest/captcha v0.0.0-20170622155422-6a29415a8364
-	github.com/decred/dcrd/blockchain/stake v1.1.0
-	github.com/decred/dcrd/certgen v1.0.2
-	github.com/decred/dcrd/chaincfg v1.3.0
-	github.com/decred/dcrd/chaincfg/chainhash v1.0.1
-	github.com/decred/dcrd/dcrjson v1.1.0
-	github.com/decred/dcrd/dcrutil v1.2.0
-	github.com/decred/dcrd/hdkeychain v1.1.1
-	github.com/decred/dcrd/rpcclient v1.1.0
-	github.com/decred/dcrd/wire v1.2.0
-	github.com/decred/dcrwallet/wallet v1.2.0
+	github.com/vatercoin/vaterd/blockchain/stake v1.1.0
+	github.com/vatercoin/vaterd/certgen v1.0.2
+	github.com/vatercoin/vaterd/chaincfg v1.3.0
+	github.com/vatercoin/vaterd/chaincfg/chainhash v1.0.1
+	github.com/vatercoin/vaterd/vaterjson v1.1.0
+	github.com/vatercoin/vaterd/vaterutil v1.2.0
+	github.com/vatercoin/vaterd/hdkeychain v1.1.1
+	github.com/vatercoin/vaterd/rpcclient v1.1.0
+	github.com/vatercoin/vaterd/wire v1.2.0
+	github.com/vatercoin/vaterwallet/wallet v1.2.0
 	github.com/decred/slog v1.0.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-gorp/gorp v2.0.1-0.20181104192722-f3677d4a0a88+incompatible

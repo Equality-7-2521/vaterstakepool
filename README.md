@@ -1,68 +1,68 @@
-# dcrstakepool
+# vaterstakepool
 
-[![GoDoc](https://godoc.org/github.com/decred/dcrstakepool?status.svg)](https://godoc.org/github.com/decred/dcrstakepool)
-[![Build Status](https://travis-ci.org/decred/dcrstakepool.svg?branch=master)](https://travis-ci.org/decred/dcrstakepool)
-[![Go Report Card](https://goreportcard.com/badge/github.com/decred/dcrstakepool)](https://goreportcard.com/report/github.com/decred/dcrstakepool)
+[![GoDoc](https://godoc.org/github.com/vatercoin/vaterstakepool?status.svg)](https://godoc.org/github.com/vatercoin/vaterstakepool)
+[![Build Status](https://travis-ci.org/vatercoin/vaterstakepool.svg?branch=master)](https://travis-ci.org/vatercoin/vaterstakepool)
+[![Go Report Card](https://goreportcard.com/badge/github.com/vatercoin/vaterstakepool)](https://goreportcard.com/report/github.com/vatercoin/vaterstakepool)
 
-dcrstakepool is a web application which coordinates generating 1-of-2 multisig
-addresses on a pool of [dcrwallet](https://github.com/decred/dcrwallet) servers
-so users can purchase [proof-of-stake tickets](https://docs.decred.org/mining/proof-of-stake/)
-on the [Decred](https://decred.org/) network and have the pool of wallet servers
+vaterstakepool is a web application which coordinates generating 1-of-2 multisig
+addresses on a pool of [vaterwallet](https://github.com/vatercoin/vaterwallet) servers
+so users can purchase [proof-of-stake tickets](https://docs.vatercoin.org/mining/proof-of-stake/)
+on the [Vatercoin](https://vatercoin.org/) network and have the pool of wallet servers
 vote on their behalf when the ticket is selected.
 
 ## Architecture
 
 ![Voting Service Architecture](https://i.imgur.com/2JDA9dl.png)
 
-- It is highly recommended to use 3 dcrd+dcrwallet+stakepoold nodes for
+- It is highly recommended to use 3 vaterd+vaterwallet+stakepoold nodes for
   production use on mainnet.
 - The architecture is subject to change in the future to lessen the dependence
-  on dcrwallet and MySQL.
+  on vaterwallet and MySQL.
 
 ## Git Tip Release notes
 
 - The handling of tickets considered invalid because they pay too-low-of-a-fee
-  is now integrated directly into dcrstakepool and stakepoold.
+  is now integrated directly into vaterstakepool and stakepoold.
   - Users who pass both the adminIPs and the new adminUserIDs checks will see a
     new link on the menu to the new administrative add tickets page.
   - Tickets are added to the MySQL database and then stakepoold is triggered to
     pull an update from the database and reload its config.
-  - To accommodate changes to the gRPC API, dcrstakepool/stakepoold had their
+  - To accommodate changes to the gRPC API, vaterstakepool/stakepoold had their
     API versions changed to require/advertize 4.0.0. This requires performing
     the upgrade steps outlined below.
 - **KNOWN ISSUE** Total tickets count reported by stakepoold may not be totally
   accurate until low fee tickets that have been added to the database can be
   marked as voted.  This will be resolved by future work.
-  ([#201](https://github.com/decred/dcrstakepool/issues/201)).
+  ([#201](https://github.com/vatercoin/vaterstakepool/issues/201)).
 
 ## Git Tip Upgrade Guide
 
-1) Announce maintenance and shut down dcrstakepool.
+1) Announce maintenance and shut down vaterstakepool.
 2) Upgrade Go to the latest stable version if necessary/possible.
 3) Perform an upgrade of each stakepoold instance one at a time.
    - Stop stakepoold.
    - Build and restart stakepoold.
-4) Edit dcrstakepool.conf and set adminIPs/adminUserIDs appropriately to include
+4) Edit vaterstakepool.conf and set adminIPs/adminUserIDs appropriately to include
    the administrative staff for whom you wish give the ability to add low fee
    tickets for voting.
-5) Upgrade and start dcrstakepool after setting adminUserIDs.
+5) Upgrade and start vaterstakepool after setting adminUserIDs.
 6) Announce maintenance complete after verifying functionality.
 
 ## 1.1.1 Release Notes
 
-- dcrd has a new agenda and the vote version in dcrwallet has been
+- vaterd has a new agenda and the vote version in vaterwallet has been
   incremented to v5 on mainnet.
 - stakepoold
   - The ticket list is now maintained by doing an initial GetTicket RPC call and
     then subtracts/adds tickets by processing SpentAndMissed/New ticket
-    notifications from dcrwallet.  This approach is much faster than the old
+    notifications from vaterwallet.  This approach is much faster than the old
     method of calling StakePoolUserInfo for each user.
-  - Bug fixes to the above commit and to accommodate changes in dcrwallet.
+  - Bug fixes to the above commit and to accommodate changes in vaterwallet.
 - Status page
   - StatusUnauthorized error is now thrown rather than a generic one when
     accessing the page as a non-admin.
   - Updated to use new design.
-  - Synced dcrwallet walletinfo field list.
+  - Synced vaterwallet walletinfo field list.
 - Tickets page
   - Performance was greatly improved by skipping display of historic tickets.
   - Handles users that have only low fee/invalid tickets properly.
@@ -70,24 +70,24 @@ vote on their behalf when the ticket is selected.
 - General markup improvements.
   - Removed mention of creating a voting account as it has been deprecated.
   - Instructions were further clarified and updated to strongly recommend the
-    use of Decrediton/Paymetheus.
+    use of Vatercoiniton/Paymetheus.
   - Fragments of invalid markup were fixed.
 
 ## 1.1.1 Upgrade Guide
 
-1) Announce maintenance and shut down dcrstakepool.
-2) Perform upgrades on each dcrd+dcrwallet+stakepoold voting cluster one at a
+1) Announce maintenance and shut down vaterstakepool.
+2) Perform upgrades on each vaterd+vaterwallet+stakepoold voting cluster one at a
    time.
-   - Stop stakepoold, dcrwallet, and dcrd.
-   - Upgrade dcrd, dcrwallet to 1.1.0 release binaries or git. If compiling from
+   - Stop stakepoold, vaterwallet, and vaterd.
+   - Upgrade vaterd, vaterwallet to 1.1.0 release binaries or git. If compiling from
    source, Go 1.9 is recommended to pick up improvements to the Golang runtime.
-   - Restart dcrd, dcrwallet.
+   - Restart vaterd, vaterwallet.
    - Upgrade stakepoold.
    - Start stakepoold.
-3) Upgrade and start dcrstakepool.  If you are maintaining a fork, note that
-   you need to update the dcrd/chaincfg dependency to a revision that contains
+3) Upgrade and start vaterstakepool.  If you are maintaining a fork, note that
+   you need to update the vaterd/chaincfg dependency to a revision that contains
    the new agenda.
-4) dcrstakepool will reset the votebits for all users to 1 when it detects the
+4) vaterstakepool will reset the votebits for all users to 1 when it detects the
    new vote version via stakepoold.
 5) Announce maintenance complete after verifying functionality.  If possible,
    also announce that a new voting agenda is available and users must login
@@ -97,7 +97,7 @@ vote on their behalf when the ticket is selected.
 
 - [Go](http://golang.org) 1.10.5 or newer (1.11 is recommended).
 - MySQL
-- Nginx or other web server to proxy to dcrstakepool
+- Nginx or other web server to proxy to vaterstakepool
 
 ## Installation
 
@@ -107,7 +107,7 @@ Building or updating from source requires only an installation of Go
 ([instructions](http://golang.org/doc/install)). It is recommended to add
 `$GOPATH/bin` to your `PATH` at this point.
 
-Clone the dcrstakepool repository into any folder and follow the instructions
+Clone the vaterstakepool repository into any folder and follow the instructions
 below for your version of Go.
 
 #### Building with Go 1.11
@@ -140,17 +140,17 @@ install and use `vgo`. If possible, upgrade to Go 1.11.
 
 ### Components
 
-The frontend server (dcrstakepool) and the backend daemon (stakepoold) are built
+The frontend server (vaterstakepool) and the backend daemon (stakepoold) are built
 separately. Since module-enabled builds no longer require building under
 `$GOPATH`, the following instructions use the placeholder
 `{{YOUR_GO_MODULE_PATH}}` to refer to wherever you checkout your Go code.
 
-#### Frontend - dcrstakepool
+#### Frontend - vaterstakepool
 
-Build dcrstakepool and copy it to the web server.
+Build vaterstakepool and copy it to the web server.
 
 ```bash
-$ cd {{YOUR_GO_MODULE_PATH}}/github.com/decred/dcrstakepool
+$ cd {{YOUR_GO_MODULE_PATH}}/github.com/vatercoin/vaterstakepool
 $ go build
 ```
 
@@ -159,7 +159,7 @@ $ go build
 Build stakepoold and copy it to each voting wallet node.
 
 ```bash
-$ cd {{YOUR_GO_MODULE_PATH}}/src/github.com/decred/dcrstakepool/backend/stakepoold
+$ cd {{YOUR_GO_MODULE_PATH}}/src/github.com/vatercoin/vaterstakepool/backend/stakepoold
 $ go build
 ```
 
@@ -169,11 +169,11 @@ To update an existing source tree, pull the latest changes and install the
 matching dependencies:
 
 ```bash
-$ cd $GOPATH/src/github.com/decred/dcrstakepool
+$ cd $GOPATH/src/github.com/vatercoin/vaterstakepool
 $ git pull
 $ dep ensure
 $ go build
-$ cd $GOPATH/src/github.com/decred/dcrstakepool/backend/stakepoold
+$ cd $GOPATH/src/github.com/vatercoin/vaterstakepool/backend/stakepoold
 $ go build
 ```
 
@@ -181,15 +181,15 @@ $ go build
 
 ### Pre-requisites
 
-These instructions assume you are familiar with dcrd/dcrwallet.
+These instructions assume you are familiar with vaterd/vaterwallet.
 
-- Create basic dcrd/dcrwallet/dcrctl config files with usernames, passwords,
+- Create basic vaterd/vaterwallet/vaterctl config files with usernames, passwords,
   rpclisten, and network set appropriately within them or run example commands
   with additional flags as necessary.
 
-- Build/install dcrd and dcrwallet from latest master.
+- Build/install vaterd and vaterwallet from latest master.
 
-- Run dcrd instances and let them fully sync.
+- Run vaterd instances and let them fully sync.
 
 ### Voting service fees/cold wallet
 
@@ -197,16 +197,16 @@ These instructions assume you are familiar with dcrd/dcrwallet.
   be completely separate from the voting service infrastructure.**
 
 ```bash
-$ dcrwallet --create
-$ dcrwallet
+$ vaterwallet --create
+$ vaterwallet
 ```
 
 - Get the master pubkey for the account you wish to use. This will be needed to
-  configure dcrwallet and dcrstakepool.
+  configure vaterwallet and vaterstakepool.
 
 ```bash
-$ dcrctl --wallet createnewaccount teststakepoolfees
-$ dcrctl --wallet getmasterpubkey teststakepoolfees
+$ vaterctl --wallet createnewaccount teststakepoolfees
+$ vaterctl --wallet getmasterpubkey teststakepoolfees
 ```
 
 - Mark 10000 addresses in use for the account so the wallet will recognize
@@ -214,7 +214,7 @@ $ dcrctl --wallet getmasterpubkey teststakepoolfees
   UserId 2 to address 2, and so on.
 
 ```bash
-$ dcrctl --wallet accountsyncaddressindex teststakepoolfees 0 10000
+$ vaterctl --wallet accountsyncaddressindex teststakepoolfees 0 10000
 ```
 
 ### Voting service voting wallets
@@ -223,21 +223,21 @@ $ dcrctl --wallet accountsyncaddressindex teststakepoolfees 0 10000
   for disaster recovery!**
 
 ```bash
-$ dcrwallet --create
+$ vaterwallet --create
 ```
 
-- Start a properly configured dcrwallet and unlock it. See
-  sample-dcrwallet.conf.
+- Start a properly configured vaterwallet and unlock it. See
+  sample-vaterwallet.conf.
 
 ```bash
-$ dcrwallet
+$ vaterwallet
 ```
 
 - Get the master pubkey from the default account.  This will be used for
-  votingwalletextpub in dcrstakepool.conf.
+  votingwalletextpub in vaterstakepool.conf.
 
 ```bash
-$ dcrctl --wallet getmasterpubkey default
+$ vaterctl --wallet getmasterpubkey default
 ```
 
 ### MySQL
@@ -263,15 +263,15 @@ MySQL> CREATE DATABASE stakepool;
 
 - Adapt sample-stakepoold.conf and run stakepoold.
 
-### dcrstakepool setup
+### vaterstakepool setup
 
-- Create the .dcrstakepool directory and copy dcrwallet certs to it:
+- Create the .vaterstakepool directory and copy vaterwallet certs to it:
 
 ```bash
-$ mkdir ~/.dcrstakepool
-$ cd ~/.dcrstakepool
-$ scp walletserver1:~/.dcrwallet/rpc.cert wallet1.cert
-$ scp walletserver2:~/.dcrwallet/rpc.cert wallet2.cert
+$ mkdir ~/.vaterstakepool
+$ cd ~/.vaterstakepool
+$ scp walletserver1:~/.vaterwallet/rpc.cert wallet1.cert
+$ scp walletserver2:~/.vaterwallet/rpc.cert wallet2.cert
 $ scp walletserver1:~/.stakepoold/rpc.cert stakepoold1.cert
 $ scp walletserver2:~/.stakepoold/rpc.cert stakepoold2.cert
 ```
@@ -279,7 +279,7 @@ $ scp walletserver2:~/.stakepoold/rpc.cert stakepoold2.cert
 - Copy sample config and edit appropriately.
 
 ```bash
-$ cp -p sample-dcrstakepool.conf dcrstakepool.conf
+$ cp -p sample-vaterstakepool.conf vaterstakepool.conf
 ```
 
 ## Running
@@ -288,34 +288,34 @@ The easiest way to run the stakepool code is to run it directly from the root of
 the source tree:
 
 ```bash
-$ cd $GOPATH/src/github.com/decred/dcrstakepool
+$ cd $GOPATH/src/github.com/vatercoin/vaterstakepool
 $ go build
-$ ./dcrstakepool
+$ ./vaterstakepool
 ```
 
-If you wish to run dcrstakepool from a different directory you will need to
+If you wish to run vaterstakepool from a different directory you will need to
 change **publicpath** and **templatepath** from their relative paths to an
 absolute path.
 
 ## Development
 
-If you are modifying templates, sending the USR1 signal to the dcrstakepool
+If you are modifying templates, sending the USR1 signal to the vaterstakepool
 process will trigger a template reload.
 
 ## Operations
 
-- dcrstakepool will connect to the database or error out if it cannot do so.
+- vaterstakepool will connect to the database or error out if it cannot do so.
 
-- dcrstakepool will create the stakepool.Users table automatically if it doesn't
+- vaterstakepool will create the stakepool.Users table automatically if it doesn't
   exist.
 
-- dcrstakepool attempts to connect to all of the wallet servers on startup or
+- vaterstakepool attempts to connect to all of the wallet servers on startup or
   error out if it cannot do so.
 
-- dcrstakepool takes a user's pubkey, validates it, calls getnewaddress on all
+- vaterstakepool takes a user's pubkey, validates it, calls getnewaddress on all
   the wallet servers, then createmultisig, and finally importscript.  If any of
   these RPCs fail or returns inconsistent results, the RPC client built-in to
-  dcrstakepool will shut down and will not operate until it has been restarted.
+  vaterstakepool will shut down and will not operate until it has been restarted.
   Wallets should be verified to be in sync before restarting.
 
 - User API Tokens have an issuer field set to baseURL from the configuration file.
@@ -334,11 +334,11 @@ were processed.
 
 ### For v1.1.1 and below
 
-If a user pays an incorrect fee you may add their tickets like so (requires dcrd
+If a user pays an incorrect fee you may add their tickets like so (requires vaterd
 running with `txindex=1`):
 
 ```bash
-dcrctl --wallet stakepooluserinfo "MultiSigAddress" | grep -Pzo '(?<="invalid": \[)[^\]]*' | tr -d , | xargs -Itickethash dcrctl --wallet getrawtransaction tickethash | xargs -Itickethex dcrctl --wallet addticket "tickethex"
+vaterctl --wallet stakepooluserinfo "MultiSigAddress" | grep -Pzo '(?<="invalid": \[)[^\]]*' | tr -d , | xargs -Itickethash vaterctl --wallet getrawtransaction tickethash | xargs -Itickethex vaterctl --wallet addticket "tickethex"
 ```
 
 ## Backups, monitoring, security considerations
@@ -347,7 +347,7 @@ dcrctl --wallet stakepooluserinfo "MultiSigAddress" | grep -Pzo '(?<="invalid": 
   Backups should be transferred off-site.  If using binary backups, do a test
   restore. For .sql files, verify visually.
 
-- A monitoring system with alerting should be pointed at dcrstakepool and
+- A monitoring system with alerting should be pointed at vaterstakepool and
   tested/verified to be operating properly.  There is a hidden /status page
   which throws 500 if the RPC client is shutdown.  If your monitoring system
   supports it, add additional points of verification such as: checking that the
@@ -363,21 +363,21 @@ dcrctl --wallet stakepooluserinfo "MultiSigAddress" | grep -Pzo '(?<="invalid": 
 
 - In the case of a total failure of a wallet server:
   - Restore the failed wallet(s) from seed
-  - Restart the dcrstakepool process to allow automatic syncing to occur.
+  - Restart the vaterstakepool process to allow automatic syncing to occur.
 
 ## IRC
 
 - irc.freenode.net
-- channel #decred
+- channel #vatercoin
 
 ## Issue Tracker
 
-The [integrated github issue tracker](https://github.com/decred/dcrstakepool/issues)
+The [integrated github issue tracker](https://github.com/vatercoin/vaterstakepool/issues)
 is used for this project.
 
 ## License
 
-dcrstakepool is licensed under the [copyfree](http://copyfree.org) MIT/X11 and
+vaterstakepool is licensed under the [copyfree](http://copyfree.org) MIT/X11 and
 ISC Licenses.
 
 ## Version History
@@ -401,7 +401,7 @@ ISC Licenses.
     available through the API without authentication.
 - 0.0.4 - Major changes/improvements.
   * config.toml is no longer required as the options in that file have been
-    migrated to dcrstakepool.conf.
+    migrated to vaterstakepool.conf.
   * Automatic syncing of scripts, tickets, and vote bits is now performed at
     startup.  Syncing of vote bits is a long process and can be skipped with the
     SkipVoteBitsSync flag/configuration value.
@@ -430,7 +430,7 @@ ISC Licenses.
   * Users may now reset their password by specifying an email address and
     clicking a link that they will receive via email.  You will need to
     add a proper configuration for your mail server for it to work properly.
-    The various SMTP options can be seen in **sample-dcrstakepool.conf**.
+    The various SMTP options can be seen in **sample-vaterstakepool.conf**.
   * User instructions on the address and ticket pages were updated.
   * SpentBy link added to the voted tickets display.
 - 0.0.1 - Initial release for mainnet operations

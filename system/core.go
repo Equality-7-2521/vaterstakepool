@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/decred/dcrstakepool/models"
+	"github.com/vatercoin/vaterstakepool/models"
 	"github.com/go-gorp/gorp"
 	"github.com/gorilla/sessions"
 	"github.com/zenazn/goji/web"

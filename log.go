@@ -9,10 +9,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/decred/dcrstakepool/controllers"
-	"github.com/decred/dcrstakepool/models"
-	"github.com/decred/dcrstakepool/stakepooldclient"
-	"github.com/decred/dcrstakepool/system"
+	"github.com/vatercoin/vaterstakepool/controllers"
+	"github.com/vatercoin/vaterstakepool/models"
+	"github.com/vatercoin/vaterstakepool/stakepooldclient"
+	"github.com/vatercoin/vaterstakepool/system"
 	"github.com/decred/slog"
 	"github.com/jrick/logrotate/rotator"
 )
@@ -46,7 +46,7 @@ var (
 	logRotator *rotator.Rotator
 
 	controllersLog      = backendLog.Logger("CNTL")
-	log                 = backendLog.Logger("DCRS")
+	log                 = backendLog.Logger("VATERS")
 	modelsLog           = backendLog.Logger("MODL")
 	stakepooldclientLog = backendLog.Logger("GRPC")
 	systemLog           = backendLog.Logger("SYTM")
@@ -62,7 +62,7 @@ func init() {
 
 // subsystemLoggers maps each subsystem identifier to its associated logger.
 var subsystemLoggers = map[string]slog.Logger{
-	"DCRS": log,
+	"VATERS": log,
 	"CNTL": controllersLog,
 	"GRPC": stakepooldclientLog,
 	"MODL": modelsLog,

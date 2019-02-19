@@ -9,7 +9,7 @@
 // Full documentation of the API implemented by this package is maintained in a
 // language-agnostic document:
 //
-// TODO Document gRPC API like dcrwallet once the API is stable
+// TODO Document gRPC API like vaterwallet once the API is stable
 package rpcserver
 
 import (
@@ -18,16 +18,16 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/decred/dcrd/chaincfg/chainhash"
-	pb "github.com/decred/dcrstakepool/backend/stakepoold/rpc/stakepoolrpc"
-	"github.com/decred/dcrstakepool/backend/stakepoold/userdata"
+	"github.com/vatercoin/vaterd/chaincfg/chainhash"
+	pb "github.com/vatercoin/vaterstakepool/backend/stakepoold/rpc/stakepoolrpc"
+	"github.com/vatercoin/vaterstakepool/backend/stakepoold/userdata"
 )
 
 // Public API version constants
 const (
 	// The most probable reason for a command timing out would be because a
 	// deadlock has occurred in the main process.  We want to reply with an
-	// error message in this case before dcrstakepool applies a client timeout.
+	// error message in this case before vaterstakepool applies a client timeout.
 	// The commands are basic map operations and copies and typically complete
 	// within one millisecond.  It is possible for an abnormally long garbage
 	// collection cycle to also trigger a timeout but the current allocation
