@@ -4,16 +4,6 @@ require (
 	github.com/apoydence/onpar v0.0.0-20181125144932-f2f06780798d // indirect
 	github.com/dajohi/goemail v0.0.0-20190207191308-61faa215f94d
 	github.com/dchest/captcha v0.0.0-20170622155422-6a29415a8364
-	github.com/vatercoin/vaterd/blockchain/stake v1.1.0
-	github.com/vatercoin/vaterd/certgen v1.0.2
-	github.com/vatercoin/vaterd/chaincfg v1.3.0
-	github.com/vatercoin/vaterd/chaincfg/chainhash v1.0.1
-	github.com/vatercoin/vaterd/vaterjson v1.1.0
-	github.com/vatercoin/vaterd/vaterutil v1.2.0
-	github.com/vatercoin/vaterd/hdkeychain v1.1.1
-	github.com/vatercoin/vaterd/rpcclient v1.1.0
-	github.com/vatercoin/vaterd/wire v1.2.0
-	github.com/vatercoin/vaterwallet/wallet v1.2.0
 	github.com/decred/slog v1.0.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-gorp/gorp v2.0.1-0.20181104192722-f3677d4a0a88+incompatible
@@ -25,12 +15,15 @@ require (
 	github.com/jrick/logrotate v1.0.0
 	github.com/lib/pq v1.0.0 // indirect
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
-	github.com/onsi/ginkgo v1.7.0 // indirect
 	github.com/poy/onpar v0.0.0-20181125144932-f2f06780798d // indirect
-	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/zenazn/goji v0.9.0
 	github.com/ziutek/mymysql v1.5.4 // indirect
-	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9
-	golang.org/x/net v0.0.0-20180826012351-8a410e7b638d
+	golang.org/x/crypto v0.0.0-20190211182817-74369b46fc67
+	golang.org/x/net v0.0.0-20190213061140-3a22650c66bd
 	google.golang.org/grpc v1.18.0
+)
+
+replace (
+        github.com/vatercoin/vaterd => ../vaterd
+        github.com/vatercoin/vaterwallet => ../vaterwallet
 )
