@@ -156,6 +156,7 @@ func NewMainController(params *chaincfg.Params, adminIPs []string,
 	smtpUrl += smtpHost
 
 	tlsConfig := tls.Config{}
+	tlsConfig.ServerName = smtpHost
 	smtpServer, err := goemail.NewSMTP(smtpUrl, &tlsConfig)
 	if err != nil {
 		return nil, err
