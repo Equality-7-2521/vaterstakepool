@@ -12,7 +12,7 @@ vote on their behalf when the ticket is selected.
 
 ## Architecture
 
-![Voting Service Architecture](https://i.imgur.com/2JDA9dl.png)
+![Voting Service Architecture](https://i.imgur.com/A9tVEc3.png)
 
 - It is highly recommended to use 3 vaterd+vaterwallet+stakepoold nodes for
   production use on mainnet.
