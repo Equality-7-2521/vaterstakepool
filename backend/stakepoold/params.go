@@ -31,9 +31,9 @@ type params struct {
 // to emulate the full reference implementation RPC API.
 var mainNetParams = params{
 	Params:              &chaincfg.MainNetParams,
-	VaterdRPCServerPort:   "9109",
-	RPCServerPort:       "9113",
-	WalletRPCServerPort: "9110",
+	VaterdRPCServerPort:   "9209",
+	RPCServerPort:       "9213",
+	WalletRPCServerPort: "9210",
 }
 
 // testNetParams contains parameters specific to the test network (version 0)
@@ -41,18 +41,18 @@ var mainNetParams = params{
 // reference implementation - see the mainNetParams comment for details.
 var testNetParams = params{
 	Params:              &chaincfg.TestNetParams,
-	VaterdRPCServerPort:   "19109",
-	RPCServerPort:       "19113",
-	WalletRPCServerPort: "19110",
+	VaterdRPCServerPort:   "19209",
+	RPCServerPort:       "19213",
+	WalletRPCServerPort: "19210",
 }
 
 // simNetParams contains parameters specific to the simulation test network
 // (wire.SimNet).
 var simNetParams = params{
 	Params:              &chaincfg.SimNetParams,
-	VaterdRPCServerPort:   "19556",
-	RPCServerPort:       "19560",
-	WalletRPCServerPort: "19557",
+	VaterdRPCServerPort:   "19656",
+	RPCServerPort:       "19660",
+	WalletRPCServerPort: "19657",
 }
 
 // netName returns the name used when referring to a vatercoin network.  At the
